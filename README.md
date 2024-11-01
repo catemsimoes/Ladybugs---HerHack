@@ -24,16 +24,7 @@ npx tailwindcss init -p
 npm install lucide-react
 ```
 
-4. and 5. manual Tailwind setup, 6. and 7. UI components
-
-
-1. Create the game component:
-```bash
-mkdir -p src/components
-# Create FakeNewsGame.tsx in this directory
-```
-
-1. Run the development server:
+4. Run the development server:
 ```bash
 npm run dev
 ```
