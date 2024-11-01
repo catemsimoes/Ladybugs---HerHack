@@ -4,7 +4,6 @@ This app is going to gameify media literacy for children in classroooms. They wi
 This app will be called Smell the Fake
 
 
-```markdown
 # Setup Instructions
 
 1. Create a new Vite project with React and TypeScript:
