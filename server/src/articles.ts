@@ -1,4 +1,4 @@
-import type { Article } from './types'
+import type { Article } from '@shared/types';
 
 // Sample articles (you can move these to a separate file)
 export const ARTICLES: Article[] = [

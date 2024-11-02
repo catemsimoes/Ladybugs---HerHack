@@ -4,23 +4,8 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { AlertCircle, Timer } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import type { GameState, Tag, Article, Player } from '@shared/types';
 
-type Article = {
-    title: string;
-    content: string;
-    url: string;
-    correctTag: Tag;
-  };
-  
-  type Player = {
-    id: string;
-    name: string;
-    score: number;
-  };
-
-// Types from shared types file
-type GameState = 'WAITING' | 'PLAYING' | 'SHOWING_RESULTS';
-type Tag = "ALL_CAPS_TITLE" | "CLICKBAIT" | "EMOTIONAL_LANGUAGE" | "UNRELIABLE_SOURCE" | "OUTDATED" | "TRUTH";
 
 const TAGS: Tag[] = [
   "ALL_CAPS_TITLE",
@@ -31,22 +16,15 @@ const TAGS: Tag[] = [
   "TRUTH"
 ];
 
+const TIME_IN_SECONDS = 15;
+const TIME_IN_MILLISECONDS = TIME_IN_SECONDS * 1000;
+
 const formatTag = (tag: Tag) => {
   return tag.split('_').map(word => 
     word.charAt(0) + word.slice(1).toLowerCase()
   ).join(' ');
 };
 
-// Simulated real-time responses
-const simulateResponses = (correctTag: Tag) => {
-    const totalResponses = Math.floor(Math.random() * 20) + 10; // 10-30 responses
-    return TAGS.map(tag => ({
-      tag: formatTag(tag),
-      count: tag === correctTag 
-        ? Math.floor(totalResponses * (0.4 + Math.random() * 0.3)) // 40-70% correct
-        : Math.floor(totalResponses * Math.random() * 0.2) // 0-20% for incorrect
-    }));
-  };
 
   const FakeNewsGame = () => {
     const [playerName, setPlayerName] = useState("");
@@ -54,7 +32,7 @@ const simulateResponses = (correctTag: Tag) => {
     const [gameState, setGameState] = useState<GameState>('WAITING');
     const [currentArticle, setCurrentArticle] = useState<Article | null>(null);
     const [score, setScore] = useState(0);
-    const [timeLeft, setTimeLeft] = useState(30);
+    const [timeLeft, setTimeLeft] = useState(TIME_IN_SECONDS);
     const [selectedTag, setSelectedTag] = useState<Tag | null>(null);
     const [responses, setResponses] = useState<Array<{ tag: string; count: number }>>([]);
     const [players, setPlayers] = useState<Player[]>([]);
@@ -110,7 +88,7 @@ const simulateResponses = (correctTag: Tag) => {
 
     wsRef.current.onclose = () => {
         console.log('WebSocket connection closed');
-        setTimeout(connectWebSocket, 3000); // Optional: try to reconnect
+        setTimeout(connectWebSocket, TIME_IN_MILLISECONDS); // Optional: try to reconnect
     };
   };
 
@@ -194,7 +172,7 @@ const simulateResponses = (correctTag: Tag) => {
                     </span>
                 </div>
             </div>
-            {/* <div className="mt-4">
+            <div className="mt-4">
             <h4 className="text-sm font-medium">Players:</h4>
             <div className="space-y-1">
                 {players.map(player => (
@@ -204,7 +182,7 @@ const simulateResponses = (correctTag: Tag) => {
                 </div>
                 ))}
             </div>
-            </div> */}
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">

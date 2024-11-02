@@ -33,20 +33,24 @@ npm run dev
 
 ```
 Ladybugs---HerHack/
+├── src/                # Frontend code
+│   └── components/
+│   │   ├── ui/
+│   │   │   └── # ui helpers
+│   │   │
+│       └── FakeNewsGame.tsx
+|
 ├── server/                # Backend code
 │   ├── src/
+│   │   ├── # server helpers
+│   │   └── server.ts
+│   │
 │   ├── package.json
 │   └── tsconfig.json
-├── src/                  # Frontend code
-│   ├── components/
-│   │   ├── ui/
-│   │   │   ├── button.tsx
-│   │   │   ├── card.tsx
-│   │   │   └── input.tsx
-│   │   └── FakeNewsGame.tsx
-│   ├── App.tsx
-│   ├── index.css
-│   └── main.tsx
+|
+├── shared/
+│   └── types/
+│       └── index.ts
 ├── package.json
 ├── tailwind.config.js
 ├── tsconfig.json

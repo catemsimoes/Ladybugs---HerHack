@@ -1,7 +1,7 @@
 import express from 'express';
 import { createServer } from 'http';
 import { WebSocket, WebSocketServer } from 'ws';
-import type { GameSession } from './types';
+import { GameSession } from '@shared/types';
 import { ARTICLES } from './articles';
 
 const app = express();
