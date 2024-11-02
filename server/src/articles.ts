@@ -6,7 +6,11 @@ export const TRAINING_ARTICLES: Article[] = [
     title: "Happy Halloween! Celebrating in the USA",
     content: "Halloween is a major tradition in the USA, celebrated with carved pumpkins and lots of candy. An American family living in Switzerland shares how they celebrate. Kids go door-to-door saying “Trick or Treat!” to collect sweets. This custom, rooted in Europe, has become a grand event in America, featuring elaborate decorations. Other American traditions, like Black Friday and Thanksgiving, are also growing in popularity in Switzerland.",
     url: "https://www.srf.ch/kids/",
-    correctTag: "TRUTH"
+    correctTag: "TRUTH",
+    clues: [
+      "Source: SRF is a trusted media outlet that informs viewers about cultural events",
+      "Is it news or an ad? It's news; it provides information about Halloween traditions rather than promoting a product"
+    ]
     // - **Clues for Kids**:
     //     - **Source:** SRF is a trusted media outlet that informs viewers about cultural events.
     //     - **Is it news or an ad?** It’s news; it provides information about Halloween traditions rather than promoting a product.
@@ -15,7 +19,12 @@ export const TRAINING_ARTICLES: Article[] = [
     title: "Eating 100 Apples in a Day Will Make You Super Strong",
     content: "A recent study by 'The Super Health Institute' claims that eating 100 apples in a single day will instantly make you as strong as a professional weightlifter! The article encourages children to eat as many apples as possible to build up their strength quickly.",
     url: "www.healthmagic4kids.com",
-    correctTag: "FAKE" // TODO: FAKE tag
+    correctTag: "FAKE",
+    clues: [
+      "Sensational language",
+      "Unrealistic health claims",
+      "Lack of credible sources (no real institute mentioned)"
+    ]
     // - **Clues for kids**: Sensational language, unrealistic health claims, and lack of credible sources (no real institute mentioned).
   }
 ]

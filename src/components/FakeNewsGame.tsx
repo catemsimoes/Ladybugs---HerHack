@@ -173,104 +173,122 @@ return (
 );
 }
 
-  return (
-    <div className="max-w-2xl mx-auto mt-8 space-y-4">
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <CardTitle>
-              {gameMode === 'TRAINING' ? 'Training Mode' : 'Save the Library!'}
-            </CardTitle>
-            <div className="flex items-center gap-4">
-              {gameMode === 'TRAINING' ? (
-                <span></span>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <span>Library Health:</span>
-                  <div className="w-24 h-2 bg-gray-200 rounded">
-                    <div
-                      className="h-full rounded bg-blue-500"
-                      style={{ width: `${libraryHealth}%` }}
-                    />
-                  </div>
+return (
+  <div className="max-w-2xl mx-auto mt-8 space-y-4">
+    <Card>
+      <CardHeader>
+        <div className="flex justify-between items-center">
+          <CardTitle>
+            {gameMode === 'TRAINING' ? 'Training Mode' : 'Save the Library!'}
+          </CardTitle>
+          <div className="flex items-center gap-4">
+            {gameMode === 'TRAINING' ? (
+              <span></span>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span>Library Health:</span>
+                <div className="w-24 h-2 bg-gray-200 rounded">
+                  <div
+                    className="h-full rounded bg-blue-500"
+                    style={{ width: `${libraryHealth}%` }}
+                  />
                 </div>
-              )}
-                <span>Players: {players.length}</span>
-                <div className="flex items-center gap-2">
-                    <Timer className="w-4 h-4" />
-                    <span className={timeLeft <= 5 ? 'text-red-500' : ''}>
-                        {timeLeft}s
-                    </span>
-                </div>
+              </div>
+            )}
+            <span>Players: {players.length}</span>
+            <div className="flex items-center gap-2">
+              <Timer className="w-4 h-4" />
+              <span className={timeLeft <= 5 ? 'text-red-500' : ''}>
+                {timeLeft}s
+              </span>
             </div>
           </div>
-        </CardHeader>
-        <CardContent>
-          {gameState === 'GAME_OVER' ? (
-            <div className="text-center space-y-4">
-              <h2 className="text-2xl font-bold text-red-600">
-                The Library of Alexandria has burned down!
-              </h2>
-              <p>Train more and try again to save the library next time.</p>
-              <Button onClick={startGame}>Start New Game</Button>
-            </div>
-          ) : (
-            currentArticle && (
-              <div className="space-y-4">
-                <h3 className="text-xl font-bold">{currentArticle.title}</h3>
-                <p className="text-gray-600">{currentArticle.content}</p>
-                <p className="text-sm text-gray-400">Source: {currentArticle.url}</p>
-                
-                {gameState === 'SHOWING_RESULTS' ? (
-                  <div className="space-y-4">
-                    <div className={`p-4 rounded-lg ${selectedTag === currentArticle.correctTag ? 'bg-green-100' : 'bg-red-100'}`}>
-                      <div className="flex items-center space-x-2">
-                        <AlertCircle className={selectedTag === currentArticle.correctTag ? 'text-green-600' : 'text-red-600'} />
-                        <span>
-                          The correct answer was: {formatTag(currentArticle.correctTag)}
-                        </span>
-                      </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        {gameState === 'GAME_OVER' ? (
+          <div className="text-center space-y-4">
+            <h2 className="text-2xl font-bold text-red-600">
+              The Library of Alexandria has burned down!
+            </h2>
+            <p>Train more and try again to save the library next time.</p>
+            <Button onClick={startGame}>Start New Game</Button>
+          </div>
+        ) : (
+          currentArticle && (
+            <div className="space-y-4">
+              <h3 className="text-xl font-bold">{currentArticle.title}</h3>
+              <p className="text-gray-600">{currentArticle.content}</p>
+              <p className="text-sm text-gray-400">Source: {currentArticle.url}</p>
+              
+              {gameState === 'SHOWING_RESULTS' ? (
+                <div className="space-y-4">
+                  {/* Correct/Incorrect Result */}
+                  <div className={`p-4 rounded-lg ${selectedTag === currentArticle.correctTag ? 'bg-green-100' : 'bg-red-100'}`}>
+                    <div className="flex items-center space-x-2">
+                      <AlertCircle className={selectedTag === currentArticle.correctTag ? 'text-green-600' : 'text-red-600'} />
+                      <span>
+                        The correct answer was: {formatTag(currentArticle.correctTag)}
+                      </span>
                     </div>
-                    
-                    <div className="h-64 w-full">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={responses}>
-                          <XAxis dataKey="tag" angle={-45} textAnchor="end" height={60} />
-                          <YAxis />
-                          <Tooltip />
-                          <Bar 
-                            dataKey="count" 
-                            fill="#4f46e5"
-                            className="cursor-pointer hover:opacity-80"
-                          />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
+                  </div>
 
-                    <Button onClick={getNextArticle} className="w-full">
-                      Next Article
+                  {/* Training Mode Clues */}
+                  {gameMode === 'TRAINING' && currentArticle.clues && (
+                    <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                      <h4 className="font-semibold text-blue-800 mb-2">
+                        🔍 Why? Here are the clues:
+                      </h4>
+                      <ul className="list-disc pl-5 space-y-1">
+                        {currentArticle.clues.map((clue, index) => (
+                          <li key={index} className="text-blue-700">
+                            {clue}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Results Chart */}
+                  <div className="h-64 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={responses}>
+                        <XAxis dataKey="tag" angle={-45} textAnchor="end" height={60} />
+                        <YAxis />
+                        <Tooltip />
+                        <Bar 
+                          dataKey="count" 
+                          fill="#4f46e5"
+                          className="cursor-pointer hover:opacity-80"
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  <Button onClick={getNextArticle} className="w-full">
+                    Next Article
+                  </Button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  {(gameMode === 'TRAINING' ? TRAINING_TAGS : PLAYING_TAGS).map((tag) => (
+                    <Button
+                      key={tag}
+                      onClick={() => handleTagClick(tag)}
+                      variant={selectedTag === tag ? 'default' : 'outline'}
+                    >
+                      {formatTag(tag)}
                     </Button>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 gap-2">
-                    {(gameMode === 'TRAINING' ? TRAINING_TAGS : PLAYING_TAGS).map((tag) => (
-                      <Button
-                        key={tag}
-                        onClick={() => handleTagClick(tag)}
-                        variant={selectedTag === tag ? 'default' : 'outline'}
-                      >
-                        {formatTag(tag)}
-                      </Button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
+                  ))}
+                </div>
+              )}
+            </div>
+          )
+        )}
+      </CardContent>
+    </Card>
+  </div>
+);
 };
 
 export default FakeNewsGame;
