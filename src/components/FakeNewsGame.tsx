@@ -1,29 +1,27 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { AlertCircle, Timer } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
-// Types
 type Article = {
-  title: string;
-  content: string;
-  url: string;
-  correctTag: Tag;
-};
+    title: string;
+    content: string;
+    url: string;
+    correctTag: Tag;
+  };
+  
+  type Player = {
+    id: string;
+    name: string;
+    score: number;
+  };
 
-type Tag = 
-  | "ALL_CAPS_TITLE"
-  | "CLICKBAIT"
-  | "EMOTIONAL_LANGUAGE"
-  | "UNRELIABLE_SOURCE"
-  | "OUTDATED"
-  | "TRUTH";
-
+// Types from shared types file
 type GameState = 'WAITING' | 'PLAYING' | 'SHOWING_RESULTS';
+type Tag = "ALL_CAPS_TITLE" | "CLICKBAIT" | "EMOTIONAL_LANGUAGE" | "UNRELIABLE_SOURCE" | "OUTDATED" | "TRUTH";
 
-// Sample data
 const TAGS: Tag[] = [
   "ALL_CAPS_TITLE",
   "CLICKBAIT",
@@ -33,29 +31,6 @@ const TAGS: Tag[] = [
   "TRUTH"
 ];
 
-const ARTICLES: Article[] = [
-  {
-    title: "SHOCKING: Scientists Find AMAZING Cure for ALL Diseases!",
-    content: "In an unprecedented discovery that's sending shockwaves through the medical community, scientists claim they've found a miracle cure that works for every known disease. Click to learn this one weird trick!",
-    url: "totally-real-news.com",
-    correctTag: "ALL_CAPS_TITLE"
-  },
-  {
-    title: "Local Restaurant Receives Health Inspection Rating",
-    content: "Downtown's popular restaurant 'The Hungry Fork' received its annual health inspection this week, maintaining its A rating for the third year in a row.",
-    url: "localnews.com",
-    correctTag: "TRUTH"
-  },
-  {
-    title: "You Won't BELIEVE What This Celebrity Did Next!",
-    content: "In a shocking turn of events that has left fans speechless, this A-list celebrity's latest actions have completely transformed the entertainment industry forever!",
-    url: "celebrity-gossip-daily.net",
-    correctTag: "CLICKBAIT"
-  }
-];
-
-const QUESTION_TIME = 30; // in seconds
-
 const formatTag = (tag: Tag) => {
   return tag.split('_').map(word => 
     word.charAt(0) + word.slice(1).toLowerCase()
@@ -64,69 +39,116 @@ const formatTag = (tag: Tag) => {
 
 // Simulated real-time responses
 const simulateResponses = (correctTag: Tag) => {
-  const totalResponses = Math.floor(Math.random() * 20) + 10; // 10-30 responses
-  return TAGS.map(tag => ({
-    tag: formatTag(tag),
-    count: tag === correctTag 
-      ? Math.floor(totalResponses * (0.4 + Math.random() * 0.3)) // 40-70% correct
-      : Math.floor(totalResponses * Math.random() * 0.2) // 0-20% for incorrect
-  }));
-};
+    const totalResponses = Math.floor(Math.random() * 20) + 10; // 10-30 responses
+    return TAGS.map(tag => ({
+      tag: formatTag(tag),
+      count: tag === correctTag 
+        ? Math.floor(totalResponses * (0.4 + Math.random() * 0.3)) // 40-70% correct
+        : Math.floor(totalResponses * Math.random() * 0.2) // 0-20% for incorrect
+    }));
+  };
 
-const FakeNewsGame = () => {
-  const [playerName, setPlayerName] = useState("");
-  const [gameState, setGameState] = useState<GameState>('WAITING');
-  const [currentArticle, setCurrentArticle] = useState<Article | null>(null);
-  const [score, setScore] = useState(0);
-  const [timeLeft, setTimeLeft] = useState(QUESTION_TIME);
-  const [selectedTag, setSelectedTag] = useState<Tag | null>(null);
-  const [responses, setResponses] = useState<Array<{ tag: string; count: number }>>([]);
-  const [totalPlayers, setTotalPlayers] = useState(0);
+  const FakeNewsGame = () => {
+    const [playerName, setPlayerName] = useState("");
+    const [playerId, setPlayerId] = useState<string | null>(null);
+    const [gameState, setGameState] = useState<GameState>('WAITING');
+    const [currentArticle, setCurrentArticle] = useState<Article | null>(null);
+    const [score, setScore] = useState(0);
+    const [timeLeft, setTimeLeft] = useState(30);
+    const [selectedTag, setSelectedTag] = useState<Tag | null>(null);
+    const [responses, setResponses] = useState<Array<{ tag: string; count: number }>>([]);
+    const [players, setPlayers] = useState<Player[]>([]);
+    const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    if (gameState === 'PLAYING' && timeLeft > 0) {
-      const timer = setInterval(() => {
-        setTimeLeft(prev => prev - 1);
-      }, 1000);
-
-      if (timeLeft === 1) {
-        // Auto-submit when time runs out
-        handleTimeUp();
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
       }
+    };
+  }, []);
 
-      return () => clearInterval(timer);
+  const connectWebSocket = () => {
+    wsRef.current = new WebSocket('ws://localhost:3001');
+
+    wsRef.current.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        // console.log('Received message:', data); // For debugging, sends each second
+    
+      switch (data.type) {
+        case 'joined':
+          setPlayerId(data.id);
+          setPlayers(data.players);
+          break;
+
+        case 'playerJoined':
+        case 'playerLeft':
+          setPlayers(data.players);
+          break;
+
+        case 'gameStart':
+          setGameState('PLAYING');
+          setCurrentArticle(data.article);
+          setTimeLeft(data.timeLeft);
+          setSelectedTag(null);
+          setResponses([]);
+          break;
+
+        case 'timeUpdate':
+          setTimeLeft(data.timeLeft);
+          break;
+
+        case 'showResults':
+          setGameState('SHOWING_RESULTS');
+          setResponses(data.results);
+          if (selectedTag === data.correctTag) {
+            setScore(prevScore => prevScore + 1);
+          }
+          break;
+      }
+    };
+
+    wsRef.current.onclose = () => {
+        console.log('WebSocket connection closed');
+        setTimeout(connectWebSocket, 3000); // Optional: try to reconnect
+    };
+  };
+
+
+    if (wsRef.current){
+        wsRef.current.onerror = (error) => {
+        console.error('WebSocket error:', error);
+    };
     }
-  }, [timeLeft, gameState]);
 
   const startGame = () => {
     if (playerName.trim()) {
-      setGameState('PLAYING');
-      getNextArticle();
-      setTotalPlayers(Math.floor(Math.random() * 15) + 5); // 5-20 players
+      connectWebSocket();
+      wsRef.current?.addEventListener('open', () => {
+        wsRef.current?.send(JSON.stringify({
+          type: 'join',
+          name: playerName
+        }));
+      });
+    }
+  };
+
+  const handleTagClick = (tag: Tag) => {
+    if (gameState === 'PLAYING' && !selectedTag) {
+      setSelectedTag(tag);
+      wsRef.current?.send(JSON.stringify({
+        type: 'answer',
+        answer: tag
+      }));
     }
   };
 
   const getNextArticle = () => {
-    const randomIndex = Math.floor(Math.random() * ARTICLES.length);
-    setCurrentArticle(ARTICLES[randomIndex]);
-    setTimeLeft(QUESTION_TIME);
-    setSelectedTag(null);
-    setGameState('PLAYING');
-  };
-
-  const handleTagClick = (tag: Tag) => {
-    setSelectedTag(tag);
-  };
-
-  const handleTimeUp = () => {
-    if (!currentArticle) return;
-    
-    setGameState('SHOWING_RESULTS');
-    setResponses(simulateResponses(currentArticle.correctTag));
-    
-    if (selectedTag === currentArticle.correctTag) {
-      setScore(score + 1);
-    }
+    // In the WebSocket version, the server controls the game flow
+    // We just need to tell the server we're ready for the next article
+    wsRef.current?.send(JSON.stringify({
+      type: 'ready'
+    }));
   };
 
   if (gameState === 'WAITING') {
@@ -149,7 +171,7 @@ const FakeNewsGame = () => {
             Join Game
           </Button>
           <p className="text-center text-sm text-gray-500">
-            {totalPlayers} players waiting to start
+          {players.length} players waiting to start
           </p>
         </CardContent>
       </Card>
@@ -163,14 +185,26 @@ const FakeNewsGame = () => {
           <div className="flex justify-between items-center">
             <CardTitle>Detective {playerName}</CardTitle>
             <div className="flex items-center gap-4">
-              <span>Score: {score}</span>
-              <div className="flex items-center gap-2">
-                <Timer className="w-4 h-4" />
-                <span className={timeLeft <= 5 ? 'text-red-500' : ''}>
-                  {timeLeft}s
-                </span>
-              </div>
+                <span>Score: {score}</span>
+                <span>Players: {players.length}</span>
+                <div className="flex items-center gap-2">
+                    <Timer className="w-4 h-4" />
+                    <span className={timeLeft <= 5 ? 'text-red-500' : ''}>
+                        {timeLeft}s
+                    </span>
+                </div>
             </div>
+            {/* <div className="mt-4">
+            <h4 className="text-sm font-medium">Players:</h4>
+            <div className="space-y-1">
+                {players.map(player => (
+                <div key={player.id} className="text-sm flex justify-between">
+                    <span>{player.name}</span>
+                    <span>Score: {player.score}</span>
+                </div>
+                ))}
+            </div>
+            </div> */}
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
