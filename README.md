@@ -30,9 +30,14 @@ npm run dev
 ```
 
 ## Project Structure
+
 ```
-your-repo/
-├── src/
+Ladybugs---HerHack/
+├── server/                # Backend code
+│   ├── src/
+│   ├── package.json
+│   └── tsconfig.json
+├── src/                  # Frontend code
 │   ├── components/
 │   │   ├── ui/
 │   │   │   ├── button.tsx
@@ -47,6 +52,7 @@ your-repo/
 ├── tsconfig.json
 └── vite.config.ts
 ```
+
 
 ## Development
 
