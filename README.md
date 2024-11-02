@@ -1,7 +1,31 @@
 # Ladybugs---HerHack 
 This app is going to gameify media literacy for children in classroooms. They will learn principles that will help them discern whether or not a news article is real or fake, which will let them accumulate points to win the game later on. 
 
-This app will be called Smell the Fake
+This app will be called Fireproof Facts
+
+## How to play
+
+### Instructions
+1. **Select Your Role:** Choose if you are a Teacher or a Student
+2. (for Students) **Create Your Profile:**
+Choose a Username: Pick any name you like!
+Select an Avatar: Choose from the available options
+3. **Phase 1: True or Fake?**
+Review a news article and decide if it is True or Fake.
+Once everyone answers or time runs out, see the class results: percentage of True vs. Fake answers.
+Discuss the correct answer and learn why it was true or fake.
+4. **Phase 2: Deeper Analysis**
+Analyze more news articles and decide among the available options, e.g.:
+True
+Fake: All Caps Title
+Fake: Emotional Language
+Fake: Unreliable Source
+After each question, view the combined class results: percentage correct vs. incorrect.
+5. **Help Hypatia Save the Library:**
+If over 50% of the class answers correctly, Hypatia throws water on the fire, making it smaller.
+If over 50% answer incorrectly, fake news are thrown into the fire, making it bigger.
+**Join the adventure and help Hypatia protect the Library of Alexandria while learning about media literacy!**
+
 
 
 # Setup Instructions
@@ -56,18 +80,3 @@ Ladybugs---HerHack/
 ├── tsconfig.json
 └── vite.config.ts
 ```
-
-
-## Development
-
-The app is a simple game where players:
-1. Enter their name to start
-2. View random news articles
-3. Choose whether they think each article is real or fake based on different criteria
-4. Get immediate feedback and track their score
-```
-
-Would you like me to add:
-1. More details about any specific part?
-2. Information about the game mechanics?
-3. Instructions for adding new articles or tags?
