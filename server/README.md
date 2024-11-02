@@ -1,8 +1,13 @@
 # Server module
 
 ## Initiated via
-```
+```bash
 npm init -y
+```
+
+## To be installed here
+```bash
+npm install express cors ws
 ```
 
 ## Description
