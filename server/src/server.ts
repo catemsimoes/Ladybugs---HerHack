@@ -56,10 +56,23 @@ const broadcast = (data: BroadCastData) =>  {
 //   return articles[Math.floor(Math.random() * articles.length)];
 // };
 // gets the articles one after the other at round x gets the x-th article from the array
+
+
+// const getRoundArticle = (): Article => {
+//   console.log(PLAY_ARTICLES[currentGame.round - currentGame.maxRounds + 1])
+//   return currentGame.mode === 'TRAINING'? TRAINING_ARTICLES[currentGame.round]: PLAY_ARTICLES[currentGame.round - 2]; // hack for correct index
+// }
+
 const getRoundArticle = (): Article => {
-  console.log(PLAY_ARTICLES[currentGame.round - currentGame.maxRounds + 1])
-  return currentGame.mode === 'TRAINING'? TRAINING_ARTICLES[currentGame.round]: PLAY_ARTICLES[currentGame.round - 2]; // hack for correct index
-}
+  if (currentGame.mode === 'TRAINING') {
+    const index = Math.min(currentGame.round, TRAINING_ARTICLES.length - 1);
+    return TRAINING_ARTICLES[index];
+  } else {
+    const playIndex = currentGame.round - currentGame.maxRounds - 1;
+    const safeIndex = Math.min(Math.max(0, playIndex), PLAY_ARTICLES.length - 1);
+    return PLAY_ARTICLES[safeIndex];
+  }
+};
 
 const startGame = () => {
   currentGame.state = 'PLAYING';
@@ -123,7 +136,12 @@ const showResults = () => {
 
   // Find the most voted answer in PLAY mode
   if (currentGame.mode === 'PLAY') {
-    console.log('results', results);
+    // if no one voted, we lose points
+    if (results.length === 0) {
+      currentGame.libraryHealth = Math.max(0, currentGame.libraryHealth - 15);
+    }
+
+    
     const mostVotedAnswer = results.reduce((prev, current) => 
       (prev.count > current.count) ? prev : current
     ).tag;
