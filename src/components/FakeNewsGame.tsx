@@ -148,26 +148,51 @@ wsRef.current?.send(JSON.stringify({
 
 if (gameState === 'WAITING') {
 return (
-  <Card className="w-full max-w-md mx-auto mt-8">
-    <CardHeader>
-      <CardTitle>🔥 Fireproof Facts 🔥</CardTitle>
+  <Card className="w-full max-w-md mx-auto mt-8 bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200 shadow-lg">
+    <CardHeader className="text-center pb-2 border-b border-amber-200">
+      <CardTitle className="text-3xl font-bold text-amber-900">
+        <div className="space-y-2">
+          <div className="text-4xl">🔥 Fireproof Facts 🔥</div>
+          <div className="text-lg font-normal text-amber-700 mt-2">
+            Save the Library of Alexandria!
+          </div>
+        </div>
+      </CardTitle>
     </CardHeader>
-    <CardContent className="space-y-4">
-      <Input
-        placeholder="Enter your name"
-        value={playerName}
-        onChange={(e) => setPlayerName(e.target.value)}
-      />
+    <CardContent className="space-y-6 pt-6">
+      <div className="space-y-2">
+        <label htmlFor="name" className="text-sm font-medium text-amber-800">
+          Enter Your Name, Young Scholar
+        </label>
+        <Input
+          id="name"
+          placeholder="Enter your name"
+          value={playerName}
+          onChange={(e) => setPlayerName(e.target.value)}
+          className="border-2 border-amber-200 bg-white placeholder:text-amber-300 text-amber-900 focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+        />
+      </div>
       <Button 
-        className="w-full"
+        className={`w-full h-12 text-lg font-medium transition-all duration-300 ${
+          playerName.trim() 
+            ? 'bg-amber-600 hover:bg-amber-700 text-white shadow-md hover:shadow-lg' 
+            : 'bg-amber-100 text-amber-600'
+        }`}
         onClick={startGame}
         disabled={!playerName.trim()}
       >
-        Join Game
+        Join the Quest
       </Button>
-      <p className="text-center text-sm text-gray-500">
-      {players.length} players waiting to start
-      </p>
+      <div className="text-center space-y-2">
+        <p className="text-sm font-medium text-amber-700">
+          {players.length} scholar{players.length !== 1 ? 's' : ''} waiting to start
+        </p>
+        {players.length > 0 && (
+          <p className="text-xs text-amber-600 italic">
+            The quest begins when at least 2 scholars join
+          </p>
+        )}
+      </div>
     </CardContent>
   </Card>
 );
