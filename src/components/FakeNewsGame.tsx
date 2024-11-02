@@ -8,12 +8,10 @@ import type { GameState, Tag, Article, Player, GameMode } from '@shared/types';
 
 
 const TAGS: Tag[] = [
-  "ALL_CAPS_TITLE",
-  "CLICKBAIT",
-  "EMOTIONAL_LANGUAGE",
-  "UNRELIABLE_SOURCE",
-  "OUTDATED",
-  "TRUTH"
+  "FAKE:_ALL_CAPS_TITLE",
+  "FAKE:_UNRELIABLE_SOURCE",
+  "TRUTH",
+  "FAKE"
 ];
 
 const TIME_IN_SECONDS = 15;
@@ -148,7 +146,7 @@ if (gameState === 'WAITING') {
 return (
   <Card className="w-full max-w-md mx-auto mt-8">
     <CardHeader>
-      <CardTitle>Interactive Fake News Detective</CardTitle>
+      <CardTitle>🔥 Fireproof Facts 🔥</CardTitle>
     </CardHeader>
     <CardContent className="space-y-4">
       <Input
@@ -203,17 +201,6 @@ return (
                     </span>
                 </div>
             </div>
-            <div className="mt-4">
-            <h4 className="text-sm font-medium">Players:</h4>
-            <div className="space-y-1">
-                {players.map(player => (
-                <div key={player.id} className="text-sm flex justify-between">
-                    <span>{player.name}</span>
-                    <span>Score: {player.score}</span>
-                </div>
-                ))}
-            </div>
-          </div>
           </div>
         </CardHeader>
         <CardContent>

@@ -1,8 +1,8 @@
 import express from 'express';
 import { createServer } from 'http';
 import { WebSocket, WebSocketServer } from 'ws';
-import { Article, GameSession, Player, Tag, GameMode } from '@shared/types';
-import { ARTICLES } from './articles';
+import { Article, GameMode, GameSession, Player, Tag } from '@shared/types';
+import { TRAINING_ARTICLES, PLAY_ARTICLES } from './articles';
 import logger from './utils/logger';
 
 type BroadCastData = {
@@ -17,6 +17,9 @@ type BroadCastData = {
   correctTag?: Tag;
   gameMode?: GameMode;
   libraryHealth?: number;
+  message?: string;
+  round?: number;
+  totalRounds?: number;
 }
 
 const app = express();
@@ -36,7 +39,7 @@ const currentGame: GameSession = {
   mode: 'TRAINING',
   libraryHealth: 100, // Starting health of the Library
   round: 0,
-  maxRounds: 5, // Number of rounds before switching modes
+  maxRounds: Math.min(2, TRAINING_ARTICLES.length), // Number of rounds before switching modes
 };
 
 const broadcast = (data: BroadCastData) =>  {
@@ -47,18 +50,37 @@ const broadcast = (data: BroadCastData) =>  {
   });
 }
 
+// Helper function to get random article based on game mode
+// const getRandomArticle = (mode: GameMode): Article => {
+//   const articles = mode === 'TRAINING' ? TRAINING_ARTICLES : PLAY_ARTICLES;
+//   return articles[Math.floor(Math.random() * articles.length)];
+// };
+// gets the articles one after the other at round x gets the x-th article from the array
+const getRoundArticle = (): Article => {
+  console.log(PLAY_ARTICLES[currentGame.round - currentGame.maxRounds + 1])
+  return currentGame.mode === 'TRAINING'? TRAINING_ARTICLES[currentGame.round]: PLAY_ARTICLES[currentGame.round - 2]; // hack for correct index
+}
+
 const startGame = () => {
   currentGame.state = 'PLAYING';
   currentGame.timeLeft = TIME_IN_SECONDS;
-  currentGame.currentArticle = ARTICLES[Math.floor(Math.random() * ARTICLES.length)];
+  currentGame.currentArticle = getRoundArticle();
   currentGame.answers.clear();
   currentGame.round++;
 
   // Switch to PLAY mode after training rounds
   if (currentGame.round > currentGame.maxRounds && currentGame.mode === 'TRAINING') {
+    logger.info('🎮 Switching to PLAY mode...');
     currentGame.mode = 'PLAY';
     currentGame.round = 1;
     currentGame.libraryHealth = 100;
+    
+    // Broadcast mode change to all players
+    broadcast({
+      type: 'modeChange',
+      gameMode: 'PLAY',
+      message: "Training complete! Now let's work together to save the Library of Alexandria!"
+    });
   }
 
   broadcast({
@@ -67,7 +89,9 @@ const startGame = () => {
     timeLeft: currentGame.timeLeft,
     players: Array.from(currentGame.players.values()),
     gameMode: currentGame.mode,
-    libraryHealth: currentGame.libraryHealth
+    libraryHealth: currentGame.libraryHealth,
+    round: currentGame.round,
+    totalRounds: currentGame.mode === 'TRAINING' ? currentGame.maxRounds : undefined
   });
 
   startTimer();
@@ -99,6 +123,7 @@ const showResults = () => {
 
   // Find the most voted answer in PLAY mode
   if (currentGame.mode === 'PLAY') {
+    console.log('results', results);
     const mostVotedAnswer = results.reduce((prev, current) => 
       (prev.count > current.count) ? prev : current
     ).tag;
@@ -157,19 +182,23 @@ wss.on('connection', (ws) => {
     switch (data.type) {
       case 'join':
         currentGame.players.set(playerId, {
-            id: playerId,
-            name: data.name,
-            score: 0
-          });
-          logger.info(`🐥 Player joined: ${data.name}`, { 
-            playerId,
-            totalPlayers: currentGame.players.size 
-          })
-        
+          id: playerId,
+          name: data.name,
+          score: 0
+        });
+        logger.info(`🐥 Player joined: ${data.name}`, { 
+          playerId,
+          totalPlayers: currentGame.players.size 
+        })
+      
         ws.send(JSON.stringify({
           type: 'joined',
           id: playerId,
-          players: Array.from(currentGame.players.values())
+          players: Array.from(currentGame.players.values()),
+          gameMode: currentGame.mode,
+          round: currentGame.round,
+          totalRounds: currentGame.mode === 'TRAINING' ? currentGame.maxRounds : undefined,
+          libraryHealth: currentGame.libraryHealth
         }));
 
         broadcast({
@@ -178,27 +207,27 @@ wss.on('connection', (ws) => {
         });
 
         if (currentGame.players.size >= 2 && currentGame.state === 'WAITING') {
-          logger.info('🎮 Starting game...')
+          logger.info('🎮 Starting game in training mode...')
           setTimeout(startGame, 3000); // three seconds and the game starts!
         }
         break;
 
-      case 'answer':
-        if (currentGame.state === 'PLAYING') {
-          logger.debug(`Player ${playerId} answered`, { 
-            answer: data.answer 
-          });
-          const player = currentGame.players.get(playerId);
-          if (player) {
-            player.answer = data.answer;
-            currentGame.answers.set(
-              data.answer,
-              (currentGame.answers.get(data.answer) || 0) + 1
-            );
+        case 'answer':
+          if (currentGame.state === 'PLAYING') {
+            logger.debug(`Player ${playerId} answered`, { 
+              answer: data.answer 
+            });
+            const player = currentGame.players.get(playerId);
+            if (player) {
+              player.answer = data.answer;
+              currentGame.answers.set(
+                data.answer,
+                (currentGame.answers.get(data.answer) || 0) + 1
+              );
+            }
           }
+          break;
         }
-        break;
-    }
   });
 
   ws.on('close', () => {

@@ -1,12 +1,11 @@
 export type GameState = 'WAITING' | 'PLAYING' | 'SHOWING_RESULTS' | 'GAME_OVER';
 
+
 export type Tag = 
-  | "ALL_CAPS_TITLE"
-  | "CLICKBAIT"
-  | "EMOTIONAL_LANGUAGE"
-  | "UNRELIABLE_SOURCE"
-  | "OUTDATED"
-  | "TRUTH";
+  | "FAKE:_ALL_CAPS_TITLE"
+  | "FAKE:_UNRELIABLE_SOURCE"
+  | "TRUTH"
+  | "FAKE"; // FAKE is only for the training phase
 
 export type Article = {
     title: string;
