@@ -7,9 +7,13 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recha
 import type { GameState, Tag, Article, Player, GameMode } from '@shared/types';
 
 
-const TAGS: Tag[] = [
+const PLAYING_TAGS: Tag[] = [
   "FAKE:_ALL_CAPS_TITLE",
   "FAKE:_UNRELIABLE_SOURCE",
+  "TRUTH",
+];
+
+const TRAINING_TAGS = [
   "TRUTH",
   "FAKE"
 ];
@@ -249,7 +253,7 @@ return (
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 gap-2">
-                    {TAGS.map((tag) => (
+                    {(gameMode === 'TRAINING' ? TRAINING_TAGS : PLAYING_TAGS).map((tag) => (
                       <Button
                         key={tag}
                         onClick={() => handleTagClick(tag)}
