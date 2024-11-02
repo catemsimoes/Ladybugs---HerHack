@@ -4,7 +4,7 @@ This app is going to gameify media literacy for children in classroooms. They wi
 This app will be called Fireproof Facts
 
 ![Join the Quest Screenshot](screenshots/start-screenshot.png)
-![Fireproof Facts Game Screenshot](screenshots/apples-screenshot.png)
+![Fireproof Facts Game Screenshot](screenshots/halloween-screenshot.png)
 
 
 ## How to play
