@@ -3,6 +3,7 @@ import { createServer } from 'http';
 import { WebSocket, WebSocketServer } from 'ws';
 import { Article, GameSession, Player, Tag } from '@shared/types';
 import { ARTICLES } from './articles';
+import logger from './utils/logger';
 
 type BroadCastData = {
   type: string;
@@ -21,13 +22,14 @@ const server = createServer(app);
 const wss = new WebSocketServer({ server });
 
 
+// TODO: Move to shared
+const TIME_IN_SECONDS = 15;
 
-const QUESTION_TIME = 30; // seconds
 const currentGame: GameSession = {
   id: '1',
   players: new Map(),
   state: 'WAITING',
-  timeLeft: QUESTION_TIME,
+  timeLeft: TIME_IN_SECONDS,
   answers: new Map()
 };
 
@@ -41,7 +43,7 @@ const broadcast = (data: BroadCastData) =>  {
 
 const startGame = () => {
   currentGame.state = 'PLAYING';
-  currentGame.timeLeft = QUESTION_TIME;
+  currentGame.timeLeft = TIME_IN_SECONDS;
   currentGame.currentArticle = ARTICLES[Math.floor(Math.random() * ARTICLES.length)];
   currentGame.answers.clear();
 
@@ -97,10 +99,13 @@ const showResults= () => {
 }
 
 wss.on('connection', (ws) => {
+  logger.info('🐥 New client connected');
+
   const playerId = Math.random().toString(36).substr(2, 9);
   
   ws.on('message', (message: string) => {
     const data = JSON.parse(message);
+    logger.debug('✉️ Received message:', { playerId, type: data.type });
 
     switch (data.type) {
       case 'join':
@@ -109,6 +114,10 @@ wss.on('connection', (ws) => {
             name: data.name,
             score: 0
           });
+          logger.info(`🐥 Player joined: ${data.name}`, { 
+            playerId,
+            totalPlayers: currentGame.players.size 
+          })
         
         ws.send(JSON.stringify({
           type: 'joined',
@@ -122,12 +131,16 @@ wss.on('connection', (ws) => {
         });
 
         if (currentGame.players.size >= 2 && currentGame.state === 'WAITING') {
-          setTimeout(startGame, 3000);
+          logger.info('🎮 Starting game...')
+          setTimeout(startGame, 3000); // three seconds and the game starts!
         }
         break;
 
       case 'answer':
         if (currentGame.state === 'PLAYING') {
+          logger.debug(`Player ${playerId} answered`, { 
+            answer: data.answer 
+          });
           const player = currentGame.players.get(playerId);
           if (player) {
             player.answer = data.answer;
@@ -146,6 +159,10 @@ wss.on('connection', (ws) => {
     broadcast({
       type: 'playerLeft',
       players: Array.from(currentGame.players.values())
+    });
+    logger.info(`👋🏻 Player disconnected`, { 
+      playerId,
+      remainingPlayers: currentGame.players.size - 1 
     });
   });
 });
