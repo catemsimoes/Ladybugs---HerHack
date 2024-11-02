@@ -1,4 +1,4 @@
-export type GameState = 'WAITING' | 'PLAYING' | 'SHOWING_RESULTS';
+export type GameState = 'WAITING' | 'PLAYING' | 'SHOWING_RESULTS' | 'GAME_OVER';
 
 export type Tag = 
   | "ALL_CAPS_TITLE"
@@ -22,11 +22,17 @@ export type Player = {
     answer?: string;
 };
 
+export type GameMode = 'TRAINING' | 'PLAY';
+
 export type GameSession = {
     id: string;
     players: Map<string, Player>;
     currentArticle?: Article;
     state: GameState;
+    mode: GameMode;
     timeLeft: number;
     answers: Map<string, number>;
+    round: number;
+    libraryHealth: number;
+    maxRounds: number;
 };
