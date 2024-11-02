@@ -48,9 +48,15 @@ npm install lucide-react
 npm install recharts 
 ```
 
-4. Run the development server:
+4. Run the app:
+in the root directory
 ```bash
 npm run dev
+```
+
+at the server
+```bash
+npm start
 ```
 
 ## Project Structure
