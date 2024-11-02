@@ -12,6 +12,7 @@ export type Article = {
     content: string;
     url: string;
     correctTag: Tag;
+    clues?: string[]; // Array of clues for training mode
 };
 
 export type Player = {

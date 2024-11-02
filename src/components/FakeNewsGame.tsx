@@ -174,121 +174,154 @@ return (
 }
 
 return (
-  <div className="max-w-2xl mx-auto mt-8 space-y-4">
-    <Card>
-      <CardHeader>
-        <div className="flex justify-between items-center">
-          <CardTitle>
-            {gameMode === 'TRAINING' ? 'Training Mode' : 'Save the Library!'}
-          </CardTitle>
-          <div className="flex items-center gap-4">
-            {gameMode === 'TRAINING' ? (
-              <span></span>
-            ) : (
-              <div className="flex items-center gap-2">
-                <span>Library Health:</span>
-                <div className="w-24 h-2 bg-gray-200 rounded">
-                  <div
-                    className="h-full rounded bg-blue-500"
-                    style={{ width: `${libraryHealth}%` }}
-                  />
-                </div>
-              </div>
-            )}
-            <span>Players: {players.length}</span>
-            <div className="flex items-center gap-2">
-              <Timer className="w-4 h-4" />
-              <span className={timeLeft <= 5 ? 'text-red-500' : ''}>
-                {timeLeft}s
-              </span>
-            </div>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {gameState === 'GAME_OVER' ? (
-          <div className="text-center space-y-4">
-            <h2 className="text-2xl font-bold text-red-600">
-              The Library of Alexandria has burned down!
-            </h2>
-            <p>Train more and try again to save the library next time.</p>
-            <Button onClick={startGame}>Start New Game</Button>
-          </div>
-        ) : (
-          currentArticle && (
-            <div className="space-y-4">
-              <h3 className="text-xl font-bold">{currentArticle.title}</h3>
-              <p className="text-gray-600">{currentArticle.content}</p>
-              <p className="text-sm text-gray-400">Source: {currentArticle.url}</p>
-              
-              {gameState === 'SHOWING_RESULTS' ? (
-                <div className="space-y-4">
-                  {/* Correct/Incorrect Result */}
-                  <div className={`p-4 rounded-lg ${selectedTag === currentArticle.correctTag ? 'bg-green-100' : 'bg-red-100'}`}>
-                    <div className="flex items-center space-x-2">
-                      <AlertCircle className={selectedTag === currentArticle.correctTag ? 'text-green-600' : 'text-red-600'} />
-                      <span>
-                        The correct answer was: {formatTag(currentArticle.correctTag)}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Training Mode Clues */}
-                  {gameMode === 'TRAINING' && currentArticle.clues && (
-                    <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                      <h4 className="font-semibold text-blue-800 mb-2">
-                        🔍 Why? Here are the clues:
-                      </h4>
-                      <ul className="list-disc pl-5 space-y-1">
-                        {currentArticle.clues.map((clue, index) => (
-                          <li key={index} className="text-blue-700">
-                            {clue}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {/* Results Chart */}
-                  <div className="h-64 w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={responses}>
-                        <XAxis dataKey="tag" angle={-45} textAnchor="end" height={60} />
-                        <YAxis />
-                        <Tooltip />
-                        <Bar 
-                          dataKey="count" 
-                          fill="#4f46e5"
-                          className="cursor-pointer hover:opacity-80"
-                        />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-
-                  <Button onClick={getNextArticle} className="w-full">
-                    Next Article
-                  </Button>
-                </div>
+    <div className="max-w-2xl mx-auto mt-8 space-y-4">
+      <Card className="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200">
+        <CardHeader className="border-b border-amber-200">
+          <div className="flex justify-between items-center">
+            <CardTitle className="text-amber-900 flex items-center gap-2 text-2xl">
+              {gameMode === 'TRAINING' ? (
+                <>
+                  <span>📚 Training at Alexandria</span>
+                </>
               ) : (
-                <div className="grid grid-cols-2 gap-2">
-                  {(gameMode === 'TRAINING' ? TRAINING_TAGS : PLAYING_TAGS).map((tag) => (
-                    <Button
-                      key={tag}
-                      onClick={() => handleTagClick(tag)}
-                      variant={selectedTag === tag ? 'default' : 'outline'}
-                    >
-                      {formatTag(tag)}
-                    </Button>
-                  ))}
+                <>
+                  <span>🔥 Save the Library! 📚</span>
+                </>
+              )}
+            </CardTitle>
+            <div className="flex items-center gap-4">
+              {gameMode === 'TRAINING' ? (
+                <span className="text-amber-700 font-semibold">Practice Mode</span>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span className="text-amber-800">Library Health:</span>
+                  <div className="w-32 h-3 bg-amber-100 rounded-full border border-amber-300">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500"
+                      style={{ width: `${libraryHealth}%` }}
+                    />
+                  </div>
                 </div>
               )}
+              <span className="text-amber-700 font-medium">Players: {players.length}</span>
+              <div className="flex items-center gap-2 bg-amber-100 px-3 py-1 rounded-full">
+                <Timer className="w-4 h-4 text-amber-700" />
+                <span className={`font-bold ${timeLeft <= 5 ? 'text-red-500' : 'text-amber-700'}`}>
+                  {timeLeft}s
+                </span>
+              </div>
             </div>
-          )
-        )}
-      </CardContent>
-    </Card>
-  </div>
-);
+          </div>
+        </CardHeader>
+        <CardContent className="pt-6">
+          {gameState === 'GAME_OVER' ? (
+            <div className="text-center space-y-4 p-8 bg-red-50 rounded-lg border-2 border-red-200">
+              <h2 className="text-3xl font-bold text-red-800">
+                The Library of Alexandria has burned down!
+              </h2>
+              <p className="text-red-600">Train more and try again to save the library next time.</p>
+              <Button 
+                onClick={startGame}
+                className="bg-amber-600 hover:bg-amber-700 text-white"
+              >
+                Start New Game
+              </Button>
+            </div>
+          ) : (
+            currentArticle && (
+              <div className="space-y-4">
+                <div className="p-6 bg-white rounded-lg border-2 border-amber-200 shadow-sm">
+                  <h3 className="text-xl font-bold text-amber-900 mb-4">{currentArticle.title}</h3>
+                  <p className="text-amber-800">{currentArticle.content}</p>
+                  <p className="text-sm text-amber-600 mt-4 italic">Source: {currentArticle.url}</p>
+                </div>
+                
+                {gameState === 'SHOWING_RESULTS' ? (
+                  <div className="space-y-4">
+                    <div 
+                      className={`p-6 rounded-lg border-2 shadow-sm ${
+                        selectedTag === currentArticle.correctTag 
+                          ? 'bg-green-50 border-green-200' 
+                          : 'bg-red-50 border-red-200'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <AlertCircle className={
+                          selectedTag === currentArticle.correctTag 
+                            ? 'text-green-600' 
+                            : 'text-red-600'
+                        } />
+                        <span className="font-medium">
+                          The correct answer was: {formatTag(currentArticle.correctTag)}
+                        </span>
+                      </div>
+                    </div>
+  
+                    {gameMode === 'TRAINING' && currentArticle.clues && (
+                      <div className="p-6 bg-amber-50 rounded-lg border-2 border-amber-200 shadow-sm">
+                        <h4 className="font-semibold text-amber-900 mb-3 flex items-center gap-2">
+                          <span>🔍 Detective Notes:</span>
+                        </h4>
+                        <ul className="list-none space-y-2">
+                          {currentArticle.clues.map((clue, index) => (
+                            <li key={index} className="text-amber-800 flex items-start gap-2">
+                              <span className="text-amber-500">•</span>
+                              {clue}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+  
+                    <div className="h-64 w-full bg-white p-4 rounded-lg border-2 border-amber-200 shadow-sm">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={responses}>
+                          <XAxis dataKey="tag" angle={-45} textAnchor="end" height={60} />
+                          <YAxis />
+                          <Tooltip />
+                          <Bar 
+                            dataKey="count" 
+                            fill="#d97706" // amber-600
+                            className="cursor-pointer hover:opacity-80"
+                          />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+  
+                    <Button 
+                      onClick={getNextArticle} 
+                      className="w-full bg-amber-600 hover:bg-amber-700 text-white"
+                    >
+                      Next Article
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-3">
+                    {(gameMode === 'TRAINING' ? TRAINING_TAGS : PLAYING_TAGS).map((tag) => (
+                      <Button
+                        key={tag}
+                        onClick={() => handleTagClick(tag)}
+                        variant={selectedTag === tag ? 'default' : 'outline'}
+                        className={`
+                          ${selectedTag === tag 
+                            ? 'bg-amber-600 hover:bg-amber-700 text-white'
+                            : 'border-amber-300 text-amber-700 hover:bg-amber-50'
+                          }
+                          p-4 h-auto font-medium transition-colors
+                        `}
+                      >
+                        {formatTag(tag)}
+                      </Button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
 };
 
 export default FakeNewsGame;
