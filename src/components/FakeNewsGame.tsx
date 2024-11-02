@@ -273,20 +273,35 @@ return (
                       </div>
                     )}
   
-                    <div className="h-64 w-full bg-white p-4 rounded-lg border-2 border-amber-200 shadow-sm">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={responses}>
-                          <XAxis dataKey="tag" angle={-45} textAnchor="end" height={60} />
-                          <YAxis />
-                          <Tooltip />
-                          <Bar 
-                            dataKey="count" 
-                            fill="#d97706" // amber-600
-                            className="cursor-pointer hover:opacity-80"
-                          />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
+  <div className="h-64 w-full bg-white p-4 rounded-lg border-2 border-amber-200 shadow-sm">
+  <ResponsiveContainer width="100%" height="100%">
+    <BarChart 
+      data={responses.map(response => ({
+        ...response,
+        formattedTag: formatTag(response.tag) // Add formatted version of tag
+      }))}
+    >
+      <XAxis 
+        dataKey="formattedTag" 
+        angle={-45} 
+        textAnchor="end" 
+        height={60}
+        tick={{ fill: '#92400e' }} // amber-800 for better readability
+      />
+      <YAxis />
+      <Tooltip 
+        formatter={(value) => [value, 'Votes']} // Customize tooltip text
+        labelFormatter={(label) => `Answer: ${label}`} // Format the label in tooltip
+      />
+      <Bar 
+        dataKey="count" 
+        fill="#d97706" // amber-600
+        className="cursor-pointer hover:opacity-80"
+        name="Votes" // This will show in the tooltip
+      />
+    </BarChart>
+  </ResponsiveContainer>
+</div>
   
                     <Button 
                       onClick={getNextArticle} 
