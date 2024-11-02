@@ -1,8 +1,20 @@
 import express from 'express';
 import { createServer } from 'http';
 import { WebSocket, WebSocketServer } from 'ws';
-import { GameSession } from '@shared/types';
+import { Article, GameSession, Player, Tag } from '@shared/types';
 import { ARTICLES } from './articles';
+
+type BroadCastData = {
+  type: string;
+  players?: Player[];
+  article?: Article;
+  timeLeft?: number;
+  results?:  {
+    tag: string;
+    count: number;
+}[];
+  correctTag?: Tag;
+}
 
 const app = express();
 const server = createServer(app);
@@ -19,7 +31,7 @@ const currentGame: GameSession = {
   answers: new Map()
 };
 
-const broadcast = (data: any) =>  {
+const broadcast = (data: BroadCastData) =>  {
   wss.clients.forEach(client => {
     if (client.readyState === WebSocket.OPEN) {
       client.send(JSON.stringify(data));
@@ -74,7 +86,7 @@ const showResults= () => {
   });
 
   // Update scores
-  currentGame.players.forEach((player, id) => {
+  currentGame.players.forEach((player) => {
     if (player.answer === currentGame.currentArticle?.correctTag) {
       player.score += 1;
     }
