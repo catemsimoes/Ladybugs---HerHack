@@ -179,7 +179,7 @@ return (
             </CardTitle>
             <div className="flex items-center gap-4">
               {gameMode === 'TRAINING' ? (
-                <span>Score: {score}</span>
+                <span></span>
               ) : (
                 <div className="flex items-center gap-2">
                   <span>Library Health:</span>
@@ -191,8 +191,6 @@ return (
                   </div>
                 </div>
               )}
-              {/* ... rest of header content ... */}
-              <span>Score: {score}</span>
                 <span>Players: {players.length}</span>
                 <div className="flex items-center gap-2">
                     <Timer className="w-4 h-4" />

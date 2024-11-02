@@ -141,10 +141,13 @@ const showResults = () => {
       currentGame.libraryHealth = Math.max(0, currentGame.libraryHealth - 15);
     }
 
-    
-    const mostVotedAnswer = results.reduce((prev, current) => 
-      (prev.count > current.count) ? prev : current
-    ).tag;
+
+    const mostVotedResult = results.reduce((prev, current) => 
+      current.count > prev.count ? current : prev, 
+      results[0]
+    );
+    const mostVotedAnswer = mostVotedResult.tag;
+
 
     // Update library health based on collective answer
     if (mostVotedAnswer === currentGame.currentArticle?.correctTag) {
