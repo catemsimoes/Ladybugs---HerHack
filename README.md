@@ -18,9 +18,10 @@ npm install -D tailwindcss postcss autoprefixer
 npx tailwindcss init -p
 ```
 
-3. Install additional dependencies:
+3. Install additional dependencies (recharts added post first implementation):
 ```bash
 npm install lucide-react
+npm install recharts 
 ```
 
 4. Run the development server:
